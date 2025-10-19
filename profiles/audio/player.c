@@ -89,6 +89,8 @@ struct media_player {
 	GSList			*pending;
 	GSList			*folders;
 	uint16_t		obex_port;
+	bool			external;
+	bool			forwarded;
 };
 
 static void append_track(void *key, void *value, void *user_data)
@@ -1410,6 +1412,14 @@ void media_player_set_status(struct media_player *mp, const char *status)
 
 	g_free(mp->status);
 	mp->status = g_strdup(status);
+	if (mp->external && !mp->forwarded) 
+	{
+		DBG("player: marking external player %s active", mp->path);
+		mp->forwarded = true;
+	}
+
+	DBG("player: external=%d forwarded=%d status=%s",
+			mp->external, mp->forwarded, status);
 
 	g_dbus_emit_property_changed(btd_get_dbus_connection(), mp->path,
 					MEDIA_PLAYER_INTERFACE, "Status");

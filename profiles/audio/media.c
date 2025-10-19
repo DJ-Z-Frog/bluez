@@ -150,6 +150,8 @@ struct media_player {
 	bool			previous;
 	bool			control;
 	char			*name;
+	bool			external;
+	bool			forwarded;
 };
 
 static GSList *adapters = NULL;
@@ -3030,6 +3032,11 @@ static void app_register_player(void *data, void *user_data)
 		if (!set_name(player, &iter))
 			goto fail;
 	}
+
+	/* Mark this player as external for AVRCP forwarding (BlueZ 5.83 patch) */
+	player->external = true;
+	player->forwarded = false;
+	info("media: external MediaPlayer1 registered at %s", player->path);
 
 	queue_push_tail(app->players, player);
 
